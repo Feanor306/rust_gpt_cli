@@ -11,11 +11,8 @@ OPENAI_API_KEY="key"
 OPENAI_MAX_TOKENS="200"
 ```
 
-Features:
-1. Nameboxes
-2. Color
-3. Separate in modules
-4. Clean up dependencies
+TODO Features:
 5. Timestamps
 6. Keyboard bindings (up/down/left/right)
 7. Logging
+4. Formatting/colorization of code

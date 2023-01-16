@@ -1,4 +1,5 @@
 use std::io::{self, Write};
+use crossterm::style::Stylize;
 use rust_gpt_cli::{env, req};
 
 #[tokio::main]
@@ -11,11 +12,11 @@ async fn main() {
     let mt = env::get_max_tokens();
     let client = reqwest::Client::new();
 
-    println!("\n#####   [rust_gpt_cli]   ######");
-    println!("\n## Enter prompt or terminate ##");
+    println!("\n#####   {}   ######", "[rust_gpt_cli]".blue());
+    println!("\n## Enter {} or {} ##", "prompt".green(), "terminate".red());
 
     loop {
-        print!("\n[PROMPT]: ");
+        print!("\n{}: ", "[PROMPT]".green());
         io::stdout().flush().unwrap();
 
         let mut prompt = String::new();
