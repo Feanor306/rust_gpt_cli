@@ -1,0 +1,13 @@
+[package]
+name = "rust_gpt_cli"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+futures-util = "0.3.25"
+serde_json = "1.0.89"
+tokio = { version = "1.24.1", features = ["full"] }
+serde = { version = "1.0.152", features = ["derive"] }
+reqwest = { version = "0.11", features = ["json", "stream"] }
