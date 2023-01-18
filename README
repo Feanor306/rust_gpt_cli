@@ -12,7 +12,7 @@ OPENAI_MAX_TOKENS="200"
 ```
 
 TODO Features:
-5. Timestamps
-6. Keyboard bindings (up/down/left/right)
-7. Logging
-4. Formatting/colorization of code
+1. Process output in queue so we can detect code blocks and change color/style of output
+2. Package / crate deployment + description
+3. Option to switch model (query endpoint models?)
+4. Option to query a different endpoint
