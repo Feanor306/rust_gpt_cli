@@ -7,7 +7,7 @@ pub fn get_api_key() -> String {
     let api_key = match env::var("OPENAI_API_KEY") {
         Ok(val) => val,
         Err(e) => {
-            println!("Failed to read environment variable: {}", e);
+            println!("Failed to read environment variable OPENAI_API_KEY: {}", e);
             return "".into();
         }
     };

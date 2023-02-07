@@ -24,6 +24,5 @@ OPENAI_MAX_TOKENS="200"
 ```
 
 TODO Features:
-2. Package / crate deployment + description
-3. Option to switch model (query endpoint models?)
-4. Option to query a different endpoint
+1. Option to switch model (query endpoint models?)
+2. Option to query a different endpoint
