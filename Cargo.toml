@@ -6,6 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+log = "0.4.17"
+flexi_logger = { version = "0.24.2", features = ["async"] }
 rustyline = "10.1.0"
 chrono = "0.4.23"
 crossterm = "0.25.0"
