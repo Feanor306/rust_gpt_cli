@@ -32,5 +32,26 @@ fn parse_first_json(input: &str) -> Option<&str> {
     let expected_end_of_json = "}], \"model\": \"text-davinci-002\"}";
     let end = input.find(expected_end_of_json)? + expected_end_of_json.len() + 1;
 
-    Some(&input[..end])
+    match input[..end].to_string().len() {
+        0 => None,
+        _ => Some(&input[..end]),
+    }
+}
+
+pub fn extract_msg_from_json(cj: &String) -> String {
+    let json: serde_json::Value = match serde_json::from_str(&cj) {
+        Ok(val) => val,
+        Err(e) => {
+            let msg = format!(
+                "\n\n{} [ERROR] {}\nWhile parsing response: {}\n\n", 
+                crate::helpers::get_timestamp(), 
+                e.to_string(), 
+                cj
+            );
+            crate::log::log_err(&msg);
+            return "".to_string();
+        },
+    };
+
+    return json["choices"][0]["text"].as_str().unwrap().into();
 }

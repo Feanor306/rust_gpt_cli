@@ -1,8 +1,11 @@
+use std::io::prelude::*;                                                           
+use std::io;   
 use futures_util::StreamExt;
 use crossterm::style::Stylize;
 use crate::structs::{RequestParams, GPTResponse, OutputState};
 
 pub async fn query_ai(client: &reqwest::Client, api_key: &String, prompt: String, mt: i32) {
+    crate::log::log_info(format!("[PROMPT]: {}", prompt).as_str());
     let rp = RequestParams {
         prompt: prompt,
         model: "text-davinci-002".into(),
@@ -26,43 +29,27 @@ pub async fn query_ai(client: &reqwest::Client, api_key: &String, prompt: String
         let clean_json = crate::helpers::sanitize_json(&json_string);
 
         for cj in clean_json {
-            if cj.starts_with("[DONE]") {
-                println!("\n\n{} {}\n", crate::helpers::get_timestamp().yellow(), "[DONE]".blue());
-                break;
+            let msg: String = crate::helpers::extract_msg_from_json(&cj);
+            if msg.len() == 0 {
+                continue;
             }
 
-            let json: serde_json::Value = match serde_json::from_str(&cj) {
-                Ok(val) => val,
-                Err(e) => {
-                    println!(
-                        "\n\n{} [ERROR] {}\nWhile parsing response: {}\n\n", 
-                        crate::helpers::get_timestamp().yellow(), 
-                        e.to_string().red(), 
-                        cj
-                    );
-                    serde_json::Value::String("".to_string())
-                },
-            };
-            if json.to_string().len() == 0 {
-                continue
-            }
-
-            let message = &json["choices"][0]["text"];
-            match message.as_str()  {
-                Some(val) => {
-                    if val == "\n" {
-                        print!("\n")
+            match msg.as_str() {
+                "\n" => println!(""),
+                _ => {
+                    if gr.state == OutputState::CodeBlock {
+                        print!("{}", msg.as_str().yellow());
                     } else {
-                        if gr.state == OutputState::CodeBlock {
-                            print!("{}", val.yellow());
-                        } else {
-                            print!("{}", val.blue());
-                        }
-                        gr.append(val.into()) 
+                        print!("{}", msg.as_str().blue());
                     }
+                    gr.append(msg.clone()); 
+                    // Flush stdout after each print! 
+                    io::stdout().flush().ok().expect("Could not flush stdout");
                 },
-                None => print!(""),
             }
         }      
     }
+    // println! after print! ensures proper screen flush to avoid anomalies
+    println!("\n\n{} {}\n", crate::helpers::get_timestamp().yellow(), "[DONE]".blue());
+    crate::log::log_info(format!("[GPT]: {}", gr.payload).as_str());
 }
