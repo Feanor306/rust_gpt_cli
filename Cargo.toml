@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 log = "0.4.17"
+syntect = "5.0.0"
 flexi_logger = { version = "0.24.2", features = ["async"] }
 rustyline = "10.1.0"
 chrono = "0.4.23"

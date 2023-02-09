@@ -1,7 +1,7 @@
 [rust_gpt_cli] is a CLI tool that communicates with OpenAI GPT model. It creates a stream for each prompt and streams the response back to the terminal asynchroniously. 
 
 # Installation
-Refer to **install.sh** for all installation info
+Refer to **install.sh** for all installation info  
 Most notably
 ```bash
 # builds the binary to /target/release/rust_gpt_cli
@@ -15,7 +15,7 @@ cargo run --release
 # Set Properties
 The program uses the following environment variables.
 ```bash
-# OpenAI API KEY. Mandatory.
+# OpenAI API KEY. MANDATORY.
 OPENAI_API_KEY="key"
 # Max number of tokens the model will use. 
 # Includes Prompt Length + Response Length

@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use crate::syntax::SyntaxHighlighter;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RequestParams {
@@ -8,39 +9,32 @@ pub struct RequestParams {
     pub max_tokens: i32
 }
 
-#[derive(Debug, PartialEq)]
-pub enum OutputState {
-    Default,
-    CodeBlock
-}
-
 #[derive(Debug)]
 pub struct GPTResponse {
-    pub payload: String,
-    pub state: OutputState,
+    pub prompt: String,
+    pub full_response: String,
+    pub last_line: String,
+    pub syntax: SyntaxHighlighter,
 }
 
 impl GPTResponse {
-    pub fn new() -> Self {
+    pub fn new(p: &String) -> Self {
         Self {
-            payload: "".into(),
-            state: OutputState::Default,
+            prompt: p.into(),
+            full_response: "".into(),
+            last_line: "".into(),
+            syntax: SyntaxHighlighter::new(&p),
         }
     }
-    pub fn append(&mut self, chunk: String) {
-        self.payload.push_str(&chunk);
-        self.check_code_block();
+    pub fn append_full(&mut self, chunk: String) {
+        self.full_response.push_str(&chunk);
     }
-    pub fn check_code_block(&mut self) {
-        for p in crate::helpers::code_block_patterns() {
-            if self.payload.contains(&p) {
-                self.payload = self.payload.replace(&p, "");
-                if self.state == OutputState::Default {
-                    self.state = OutputState::CodeBlock;
-                } else {
-                    self.state = OutputState::Default;
-                }
-            }
-        }
+    pub fn append_line(&mut self, chunk: String) {
+        self.last_line.push_str(&chunk);
+    }
+    pub fn reset_line(&mut self) {
+        // syntax highliting for previous line every time a newline is streamed back in response
+        self.syntax.reprint_with_style(&self.last_line);
+        self.last_line = "".into();
     }
 }

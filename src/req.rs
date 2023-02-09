@@ -2,7 +2,7 @@ use std::io::prelude::*;
 use std::io;   
 use futures_util::StreamExt;
 use crossterm::style::Stylize;
-use crate::structs::{RequestParams, GPTResponse, OutputState};
+use crate::structs::{RequestParams, GPTResponse};
 
 pub async fn query_ai(client: &reqwest::Client, api_key: &String, prompt: String, mt: i32) {
     crate::log::log_info(format!("[PROMPT]: {}", prompt).as_str());
@@ -20,7 +20,7 @@ pub async fn query_ai(client: &reqwest::Client, api_key: &String, prompt: String
         .send()
         .await;
     
-    let mut gr = GPTResponse::new();
+    let mut gr = GPTResponse::new(&rp.prompt);
     let mut stream = res.unwrap().bytes_stream();
     println!("\n{} {}", crate::helpers::get_timestamp().yellow(), "[GPT]:".blue());
     while let Some(item) = stream.next().await {
@@ -34,22 +34,24 @@ pub async fn query_ai(client: &reqwest::Client, api_key: &String, prompt: String
                 continue;
             }
 
+            gr.append_full(msg.clone());
+
             match msg.as_str() {
-                "\n" => println!(""),
+                "\n" => {
+                    println!("");
+                    gr.reset_line();
+                },
                 _ => {
-                    if gr.state == OutputState::CodeBlock {
-                        print!("{}", msg.as_str().yellow());
-                    } else {
-                        print!("{}", msg.as_str().blue());
-                    }
-                    gr.append(msg.clone()); 
+                    print!("{}", msg.as_str().blue());
+                     
                     // Flush stdout after each print! 
                     io::stdout().flush().ok().expect("Could not flush stdout");
+                    gr.append_line(msg.clone());
                 },
             }
         }      
     }
     // println! after print! ensures proper screen flush to avoid anomalies
     println!("\n\n{} {}\n", crate::helpers::get_timestamp().yellow(), "[DONE]".blue());
-    crate::log::log_info(format!("[GPT]: {}", gr.payload).as_str());
+    crate::log::log_info(format!("[GPT]: {}", gr.full_response).as_str());
 }
