@@ -1,12 +1,30 @@
 use serde::{Deserialize, Serialize};
 use crate::syntax::SyntaxHighlighter;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
+pub struct GPTModel {
+    pub id: i32,
+    pub name: String,
+    pub owned_by: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RequestParams {
     pub prompt: String,
     pub model: String,
     pub stream: bool,
-    pub max_tokens: i32
+    pub max_tokens: i32,
+}
+
+impl RequestParams {
+    pub fn new(mt: i32) -> Self {
+        Self {
+            prompt: "".into(),
+            model: "text-davinci-003".into(),
+            stream: true,
+            max_tokens: mt,
+        }
+    }
 }
 
 #[derive(Debug)]

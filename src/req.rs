@@ -2,16 +2,11 @@ use std::io::prelude::*;
 use std::io;   
 use futures_util::StreamExt;
 use crossterm::style::Stylize;
-use crate::structs::{RequestParams, GPTResponse};
+use crate::{helpers, log, structs::{RequestParams, GPTResponse, GPTModel}};
 
-pub async fn query_ai(client: &reqwest::Client, api_key: &String, prompt: String, mt: i32) {
-    crate::log::log_info(format!("[PROMPT]: {}", prompt).as_str());
-    let rp = RequestParams {
-        prompt: prompt,
-        model: "text-davinci-002".into(),
-        stream: true,
-        max_tokens: mt
-    };
+pub async fn query_completions(client: &reqwest::Client, rp: RequestParams, api_key: &String) {
+    crate::log::log_info(format!("{}", helpers::entity_line(true, &rp.model, &"PROMPT".into())).as_str());
+
     let res = client
         .post("https://api.openai.com/v1/completions")
         .header("Content-Type", "application/json")
@@ -22,14 +17,14 @@ pub async fn query_ai(client: &reqwest::Client, api_key: &String, prompt: String
     
     let mut gr = GPTResponse::new(&rp.prompt);
     let mut stream = res.unwrap().bytes_stream();
-    println!("\n{} {}", crate::helpers::get_timestamp().yellow(), "[GPT]:".blue());
+    println!("{}", helpers::entity_line(false, &rp.model, &"GPT".into()));
     while let Some(item) = stream.next().await {
         let bs = item.unwrap();
         let json_string = String::from_utf8(bs.to_vec()).unwrap();
-        let clean_json = crate::helpers::sanitize_json(&json_string);
+        let clean_json = helpers::sanitize_json(&json_string, &rp.model);
 
         for cj in clean_json {
-            let msg: String = crate::helpers::extract_msg_from_json(&cj);
+            let msg: String = helpers::extract_msg_from_json(&cj);
             if msg.len() == 0 {
                 continue;
             }
@@ -52,6 +47,17 @@ pub async fn query_ai(client: &reqwest::Client, api_key: &String, prompt: String
         }      
     }
     // println! after print! ensures proper screen flush to avoid anomalies
-    println!("\n\n{} {}\n", crate::helpers::get_timestamp().yellow(), "[DONE]".blue());
-    crate::log::log_info(format!("[GPT]: {}", gr.full_response).as_str());
+    println!("{}\n", helpers::entity_line(false, &rp.model, &"DONE".into()));
+    log::log_info(format!("{} {}", helpers::entity_line(true, &rp.model, &"GPT".into()), gr.full_response).as_str());
+}
+
+pub async fn query_models(client: &reqwest::Client, api_key: &String) -> Vec<GPTModel> {
+    let res = client
+        .get("https://api.openai.com/v1/models")
+        .header("Authorization", format!("Bearer {}", api_key))
+        .send()
+        .await;
+
+    let msg = res.unwrap().text().await.unwrap();
+    return crate::helpers::get_models_from_json(&msg);
 }
