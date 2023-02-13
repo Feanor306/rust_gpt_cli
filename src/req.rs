@@ -5,7 +5,7 @@ use crossterm::style::Stylize;
 use crate::{helpers, log, structs::{RequestParams, GPTResponse, GPTModel}};
 
 pub async fn query_completions(client: &reqwest::Client, rp: RequestParams, api_key: &String) {
-    crate::log::log_info(format!("{}", helpers::entity_line(true, &rp.model, &"PROMPT".into())).as_str());
+    crate::log::log_info(&format!("{}", helpers::entity_line(true, &rp.model, &"PROMPT".into())));
 
     let res = client
         .post("https://api.openai.com/v1/completions")
@@ -51,7 +51,8 @@ pub async fn query_completions(client: &reqwest::Client, rp: RequestParams, api_
     // reset_line requires cursor to be at next line, must be done after a println!() or "\n"
     gr.reset_line();
     println!("{}", helpers::entity_line(false, &rp.model, &"DONE".into()));
-    log::log_info(format!("{} {}", helpers::entity_line(true, &rp.model, &"GPT".into()), gr.full_response).as_str());
+    log::log_info(&format!("{}{}", helpers::entity_line(true, &rp.model, &"GPT".into()), gr.full_response));
+    log::log_info(&format!("{}", helpers::entity_line(true, &rp.model, &"DONE".into())));
 }
 
 pub async fn query_models(client: &reqwest::Client, api_key: &String) -> Vec<GPTModel> {

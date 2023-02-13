@@ -11,10 +11,11 @@ pub fn timestamp_full() -> String {
 }
 
 pub fn entity_line(full_time: bool, model: &String, entity: &String) -> String {
-    let ts = match full_time {
-        true => timestamp_full(),
-        _ => timestamp(),
-    };
+    // full_time is used only for logging, where crossterm color formatting should be avoided
+    if full_time {
+        return format!("[{}] [{}] [{}] ", timestamp_full(), model, entity);
+    }
+
     let et = match entity.as_str() {
         "PROMPT" => format!("{}{}{}:",
             "[".green(),
@@ -35,20 +36,14 @@ pub fn entity_line(full_time: bool, model: &String, entity: &String) -> String {
 
     let res = format!("\n{}{}{} {}{}{}",
             "[".yellow(),
-            ts.yellow(),
+            timestamp().yellow(),
             "]".yellow(),
             "[".magenta(),
             model.clone().magenta(),
             "]".magenta(),
     );
 
-    match entity.len() {
-        0 => return format!("{}: ", res),
-        _ => return format!("{} {} ", 
-            res,
-            et,
-        ),
-    }
+    return format!("{} {} ", res, et);
 }
 
 pub fn sanitize_json(raw_stream_data: &String, model: &String) -> Vec<String> {
