@@ -21,8 +21,8 @@ pub fn get_api_key() -> String {
 pub fn get_max_tokens() -> i32 {
     // Default 1000 ~> 750 words
     let default_max_tokens: i32 = 1000;
-    // Max_max 5000 -> 3750 words
-    let max_max_tokens: i32 = 5000; 
+    // Max_max 4000 -> 3750 words
+    let max_max_tokens: i32 = 4000; 
 
     let mts = match env::var("OPENAI_MAX_TOKENS") {
         Ok(val) => val,
