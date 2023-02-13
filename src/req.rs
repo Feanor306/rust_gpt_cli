@@ -47,7 +47,10 @@ pub async fn query_completions(client: &reqwest::Client, rp: RequestParams, api_
         }      
     }
     // println! after print! ensures proper screen flush to avoid anomalies
-    println!("{}\n", helpers::entity_line(false, &rp.model, &"DONE".into()));
+    println!("");
+    // reset_line requires cursor to be at next line, must be done after a println!() or "\n"
+    gr.reset_line();
+    println!("{}", helpers::entity_line(false, &rp.model, &"DONE".into()));
     log::log_info(format!("{} {}", helpers::entity_line(true, &rp.model, &"GPT".into()), gr.full_response).as_str());
 }
 
