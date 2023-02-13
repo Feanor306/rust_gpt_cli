@@ -36,4 +36,11 @@ OPENAI_MAX_TOKENS="200"
 * text-davinci-002
 
 # Known issues
-* code-davinci-002 response double printed
+* two consecutive newlines can cause syntax highlighter to miss highlighting the previous line
+```rust
+// ...
+let column_3_max_length =  column_data_3.iter().map(|s|s.len()).max().unwrap_or(0);
+
+let column_3_max_length =  column_data_3.iter().map(|s|s.len()).max().unwrap_or(0);
+// ...
+```

@@ -1,5 +1,5 @@
 use crossterm::style::Stylize;
-use rust_gpt_cli::{env, req, log, helpers, structs::{RequestParams, GPTModel}};
+use rust_gpt_cli::{env, req, log, helpers, menu, structs::{RequestParams, GPTModel}};
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 
@@ -19,7 +19,7 @@ async fn main() {
         println!("No previous history.");
     }
 
-    print_menu();
+    menu::main_menu();
 
     let mut rp: RequestParams = RequestParams::new(mt);
     let mut vm: Vec<GPTModel> = vec!();
@@ -29,9 +29,9 @@ async fn main() {
         let prompt = rl.readline(&p);
         match prompt {
             Ok(line) => {
-                let l = line.to_string();
+                let l: String = line.to_string().trim().into();
                 // Ignore empty prompt
-                if l.trim().len() == 0 {
+                if l.len() == 0 {
                     continue;
                 }
                 if l == "exit" {
@@ -39,43 +39,24 @@ async fn main() {
                     break;
                 }
                 if l == "help" {
-                    print_menu();
+                    menu::main_menu();
                     continue;
                 }
                 if l == "model" {
                     vm = req::query_models(&client, &api_key).await;
-                    println!(" {} | {} | {}", "id".green(), "name".magenta(), "owned_by".blue());
-                    for m in vm.iter() {
-                        println!("{} | {} | {}", 
-                            format!("{}", m.id).green(), 
-                            m.name.clone().magenta(), 
-                            m.owned_by.clone().blue()
-                        );
-                    }
-                    println!("Type \"{} <{}>\" to change current model", "model".green(), "id".green());
+                    menu::list_models(&vm);
                     continue;
                 }
                 if l.starts_with("model") {
-                    if vm.is_empty() {
-                        println!("Please call {} command at least once before trying to change {}.", 
-                            "model".green(), 
-                            "model".magenta(),
-                        );
-                        continue;
-                    }
-                    let id: i32 = l[5..].trim().parse().unwrap();
-
-                    if id == 0 {
-                        println!("Please use an existing <{}> from the list of {}.", "id".green(), "models".magenta());
-                        continue;
-                    }
-                    for m in vm.iter() {
-                        if m.id == id {
-                            rp.model = m.name.clone();
+                    let new_model = menu::change_model(&l, &vm);
+                    match new_model.len() {
+                        0 => continue,
+                        _ => {
+                            rp.model = new_model;
                             println!("{} changed to {}", "Model".magenta(), &rp.model.clone().magenta());
-                        }
+                            continue;
+                        },
                     }
-                    continue;
                 }
                 
                 rp.prompt = line.clone();
@@ -83,7 +64,6 @@ async fn main() {
                 rl.add_history_entry(&line);
             },
             Err(ReadlineError::Interrupted) => {
-                rp.prompt = "hello".into();
                 println!("CTRL-C");
                 break
             },
@@ -99,20 +79,4 @@ async fn main() {
     }
     // #[cfg(feature = "with-file-history")]
     rl.save_history("history.txt").unwrap();
-}
-
-fn print_menu() {
-    // clear terminal screen on startup and move cursor to top
-    print!("\x1B[2J\x1B[1;1H");
-
-    // Main menu
-    println!("\n###############################");
-    println!("\n#####   {}   ######", "[rust_gpt_cli]".blue());
-    println!("\n###############################");
-    println!("\n###   {}   ###", "Available Commands:".blue());
-    println!("\n {} : {}  ", "exit".red(), "terminate program");
-    println!("\n {} : {} (default: {})  ", "model".green(), "list OpenAI models", "text-davinci-003".magenta());
-    println!("\n {} <{}> : {}  ", "model".green(), "id".magenta(), "change model");
-    println!("\n {} : {}  ", "help".blue(), "list commands");
-    println!("\n");
 }
