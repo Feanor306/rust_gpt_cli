@@ -32,7 +32,7 @@ pub fn list_models(vm: &Vec<GPTModel>) {
             format!("{}", m.owned_by.clone().blue()),
         );
     }
-    println!("\nType \"{} <{}>\" to change current model", "model".green(), "id".green());
+    println!("\nType \"{} <{}>\" to change current {}", "model".green(), "id".green(), "model".magenta());
 }
 
 pub fn change_model(l: &String, vm: &Vec<GPTModel>) -> String{
@@ -43,10 +43,7 @@ pub fn change_model(l: &String, vm: &Vec<GPTModel>) -> String{
         );
         return "".into();
     }
-    let id: i32 = match l[5..].trim().parse::<i32>() {
-        Ok(val) => val,
-        _ => 0, 
-    };
+    let id: i32 = l[5..].trim().parse().unwrap_or(0);
 
     if id == 0 {
         println!("Invalid {1} <{0}>. Please use an existing <{}> from the list of {}s.", "id".green(), "model".magenta());

@@ -1,10 +1,10 @@
 use std::io::stdout;
 use crossterm::{cursor, ExecutableCommand, terminal::{Clear, ClearType}};
 use std::collections::HashMap;
-use syntect::{easy::HighlightLines, parsing::SyntaxReference};
-use syntect::parsing::SyntaxSet;
-use syntect::highlighting::{ThemeSet, Style};
-use syntect::util::as_24_bit_terminal_escaped;
+use syntect::{
+    easy::HighlightLines, parsing::{SyntaxReference, SyntaxSet}, 
+    highlighting::{ThemeSet, Style}, util::as_24_bit_terminal_escaped,
+};
 
 #[derive(Debug)]
 pub struct SyntaxHighlighter {
