@@ -16,7 +16,7 @@ async fn main() {
     let mut rl = Editor::<()>::new().unwrap();
 
     if rl.load_history("history.txt").is_err() {
-        println!("No previous history.");
+        log::log_info("No previous history.")
     }
 
     menu::main_menu();
@@ -77,6 +77,5 @@ async fn main() {
             }
         }
     }
-    // #[cfg(feature = "with-file-history")]
     rl.save_history("history.txt").unwrap();
 }
