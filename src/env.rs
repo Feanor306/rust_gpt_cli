@@ -40,3 +40,31 @@ pub fn get_max_tokens() -> i32 {
         return default_max_tokens;
     }
 }
+
+// Retrieves ENV VAR 
+// RUST_GPT_CLI_THEME
+// Returns Default value otherwise
+pub fn get_theme() -> String {
+    let default_theme: String = "base16-eighties.dark".into();
+
+    let mts = match env::var("RUST_GPT_CLI_THEME") {
+        Ok(val) => val,
+        Err(_) => default_theme.clone(),
+    };
+
+    let available_themes = vec![
+        "base16-ocean.dark", 
+        "base16-eighties.dark", 
+        "base16-mocha.dark",
+        "base16-ocean.light", 
+        "InspiredGitHub",
+        "Solarized (dark)", 
+        "Solarized (light)",
+    ];
+
+    if available_themes.contains(&mts.as_str()) {
+        return mts
+    } else {
+        return default_theme.clone()
+    }
+}

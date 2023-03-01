@@ -3,6 +3,7 @@
 # Features
 * Streaming GPT responses asynchroniously in the terminal
 * Syntax highlighting for code (determined by programming language if present in prompt)
+* Syntax highlighting themes can be set via **RUST_GPT_CLI_THEME** env var
 * Change model by querying **/models** API and choosing one of the available models (default text-davinci-003)
 
 # Installation
@@ -19,16 +20,21 @@ cargo run --release
 # ./target/release/rust_gpt_cli
 ```
 
-# Set Properties
+# ENV Variables
 The program uses the following environment variables.
 ```bash
-# OpenAI API KEY. MANDATORY.
+# OpenAI API KEY. 
+# MANDATORY
 OPENAI_API_KEY="key"
 
 # Max number of tokens the model will use. 
 # Includes Prompt Length + Response Length
 # 1 token is approximately 4 characters or 0.75 words
-OPENAI_MAX_TOKENS="200"
+OPENAI_MAX_TOKENS="1000"
+
+# Syntax Highlighting theme
+# https://docs.rs/syntect/latest/syntect/highlighting/struct.ThemeSet.html
+RUST_GPT_CLI_THEME="base16-eighties.dark"
 ```
 
 # Tested models

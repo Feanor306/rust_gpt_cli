@@ -11,7 +11,8 @@ cargo build --release
 
 # Set ENV variables before running 
 # export OPENAI_API_KEY="key" # (mandatory)
-# export OPENAI_MAX_TOKENS="1000" # (optional, default 1000)
+# export OPENAI_MAX_TOKENS="1000" # (optional)
+# export RUST_GPT_CLI_THEME="base16-eighties.dark" # (optional)
 
 # Run with cargo
 # cargo run --release

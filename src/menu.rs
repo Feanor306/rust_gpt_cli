@@ -18,6 +18,8 @@ pub fn main_menu() {
 }
 
 pub fn list_models(vm: &Vec<GPTModel>) {
+    println!("\nQuerying {} API:\n", "/models".blue(), );
+
     println!(
         "{:<17} | {: <44} | {: <30}", 
         format!("{}","id".green()), 

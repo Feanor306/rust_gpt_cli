@@ -1,3 +1,4 @@
+use crate::env;
 use std::io::stdout;
 use crossterm::{cursor, ExecutableCommand, terminal::{Clear, ClearType}};
 use std::collections::HashMap;
@@ -30,7 +31,7 @@ impl SyntaxHighlighter {
     }
 
     pub fn style_line(&mut self, line: &String) -> String {
-        let mut h = HighlightLines::new(&self.syntax, &self.ts.themes["base16-ocean.dark"]);
+        let mut h = HighlightLines::new(&self.syntax, &self.ts.themes[&env::get_theme()]);
         let ranges: Vec<(Style, &str)> = h.highlight_line(line, &self.ps).unwrap();
 
         return as_24_bit_terminal_escaped(&ranges[..], true);
@@ -45,7 +46,7 @@ impl SyntaxHighlighter {
         stdout.execute(cursor::MoveUp(1)).unwrap();
         stdout.execute(Clear(ClearType::CurrentLine)).unwrap();
 
-        // Syntax highlighing then reprint
+        // Syntax highlighting then reprint
         print!("{}", self.style_line(line));
 
         stdout.execute(cursor::RestorePosition).unwrap();
@@ -61,6 +62,7 @@ pub fn get_extension_from_prompt(prompt: &String) -> String {
         ("typescript", "ts"),
         ("ts", "ts"),
         ("go", "go"),
+        ("golang", "go"),
         ("ruby", "rb"),
         ("markdown", "md"),
     ]);
