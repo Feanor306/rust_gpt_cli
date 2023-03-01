@@ -52,7 +52,9 @@ impl GPTResponse {
     }
     pub fn reset_line(&mut self) {
         // syntax highliting for previous line every time a newline is streamed back in response
-        self.syntax.reprint_with_style(&self.last_line);
-        self.last_line = "".into();
+        if !self.last_line.is_empty() {
+            self.syntax.reprint_with_style(&self.last_line);
+            self.last_line = "".into();
+        }
     }
 }

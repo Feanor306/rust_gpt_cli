@@ -19,7 +19,7 @@ impl SyntaxHighlighter {
         let pss: SyntaxSet = SyntaxSet::load_defaults_newlines();
         let sx: &SyntaxReference = pss.find_syntax_by_extension(
             get_extension_from_prompt(prompt).as_str()
-        ).unwrap();
+        ).unwrap_or_else(|| pss.find_syntax_plain_text());
 
         Self {
             prompt: prompt.into(),

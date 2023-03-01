@@ -1,5 +1,5 @@
 use std::io::prelude::*;                                                           
-use std::io;   
+use std::io;
 use futures_util::StreamExt;
 use crossterm::style::Stylize;
 use crate::{helpers, log, structs::{RequestParams, GPTResponse, GPTModel}};
@@ -31,21 +31,26 @@ pub async fn query_completions(client: &reqwest::Client, rp: RequestParams, api_
 
             gr.append_full(msg.clone());
 
-            match msg.as_str() {
-                "\n" => {
-                    println!("");
-                    gr.reset_line();
-                },
-                _ => {
-                    print!("{}", msg.as_str().blue());
-                     
-                    // Flush stdout after each print! 
-                    io::stdout().flush().ok().expect("Could not flush stdout");
-                    gr.append_line(msg.clone());
-                },
-            }
+            // Check each char of message individually, 
+            // because there could be multiple newlines 
+            for c in msg.chars() { 
+                match c {
+                    '\n' => {
+                        println!("");
+                        gr.reset_line();
+                    },
+                    _ => {
+                        print!("{}", format!("{}", c).blue());
+                
+                        // Flush stdout after each print!   
+                        io::stdout().flush().ok().expect("Could not flush stdout");
+                        gr.append_line(format!("{}", c));
+                    },
+                }
+            }     
         }      
     }
+
     // println! after print! ensures proper screen flush to avoid anomalies
     println!("");
     // reset_line requires cursor to be at next line, must be done after a println!() or "\n"
