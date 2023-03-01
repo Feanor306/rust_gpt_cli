@@ -3,7 +3,7 @@
 # Features
 * Streaming GPT responses asynchroniously in the terminal
 * Syntax highlighting for code (determined by programming language if present in prompt)
-* Change model by querying /models API and choosing one of the available models (default text-davinci-003)
+* Change model by querying **/models** API and choosing one of the available models (default text-davinci-003)
 
 # Installation
 Refer to **install.sh** for all installation info  
@@ -36,11 +36,4 @@ OPENAI_MAX_TOKENS="200"
 * text-davinci-002
 
 # Known issues
-* two consecutive newlines can cause syntax highlighter to miss highlighting the previous line
-```rust
-// ...
-let column_3_max_length =  column_data_3.iter().map(|s|s.len()).max().unwrap_or(0);
-
-let column_3_max_length =  column_data_3.iter().map(|s|s.len()).max().unwrap_or(0);
-// ...
-```
+* handle rows that are wider than terminal?
