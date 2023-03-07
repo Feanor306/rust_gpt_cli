@@ -1,7 +1,7 @@
-[rust_gpt_cli] is a CLI tool that communicates with OpenAI GPT model. It creates a stream for each prompt and streams the response back to the terminal asynchroniously. 
+[rust_gpt_cli] is a CLI tool that communicates with OpenAI GPT model. It creates a stream for each prompt and streams the response back to the terminal asynchronously. 
 
 # Features
-* Streaming GPT responses asynchroniously in the terminal
+* Streaming GPT responses asynchronously in the terminal
 * Syntax highlighting for code (determined by programming language if present in prompt)
 * Syntax highlighting themes can be set via **RUST_GPT_CLI_THEME** env var
 * Change model by querying **/models** API and choosing one of the available models (default text-davinci-003)
