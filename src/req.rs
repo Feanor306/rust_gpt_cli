@@ -5,7 +5,7 @@ use crossterm::style::Stylize;
 use crate::{helpers, log, structs::{RequestParams, GPTResponse, GPTModel}};
 
 pub async fn query_completions(client: &reqwest::Client, rp: RequestParams, api_key: &String) {
-    crate::log::log_info(&format!("{}", helpers::entity_line(true, &rp.model, &"PROMPT".into())));
+    crate::log::log_info(&format!("{}{}", helpers::entity_line(true, &rp.model, &"PROMPT".into()), &rp.prompt));
 
     let res = client
         .post("https://api.openai.com/v1/completions")
