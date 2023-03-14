@@ -1,5 +1,7 @@
+use std::io::stdout;
 use serde::{Deserialize, Serialize};
-use crate::syntax::SyntaxHighlighter;
+use crossterm::{cursor, ExecutableCommand};
+use crate::{helpers, syntax::SyntaxHighlighter};
 
 #[derive(Debug)]
 pub struct GPTModel {
@@ -32,6 +34,7 @@ pub struct GPTResponse {
     pub prompt: String,
     pub full_response: String,
     pub last_line: String,
+    pub max_width: u16,
     pub syntax: SyntaxHighlighter,
 }
 
@@ -41,6 +44,7 @@ impl GPTResponse {
             prompt: p.into(),
             full_response: "".into(),
             last_line: "".into(),
+            max_width: helpers::get_screen_width(),
             syntax: SyntaxHighlighter::new(&p),
         }
     }
@@ -49,6 +53,12 @@ impl GPTResponse {
     }
     pub fn append_line(&mut self, chunk: String) {
         self.last_line.push_str(&chunk);
+        if self.last_line.len() == (self.max_width as usize) {
+            let mut stdout = stdout();
+            stdout.execute(cursor::MoveDown(1)).unwrap();
+            stdout.execute(cursor::MoveToColumn(0)).unwrap();
+            self.reset_line();
+        }
     }
     pub fn reset_line(&mut self) {
         // syntax highliting for previous line every time a newline is streamed back in response

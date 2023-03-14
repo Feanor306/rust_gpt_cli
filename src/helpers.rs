@@ -1,6 +1,6 @@
 use chrono::Local;
 use crate::structs::GPTModel;
-use crossterm::style::Stylize;
+use crossterm::{style::Stylize, terminal};
 
 pub fn timestamp() -> String {
     return Local::now().format("%H:%M:%S").to_string();
@@ -8,6 +8,10 @@ pub fn timestamp() -> String {
 
 pub fn timestamp_full() -> String {
     return Local::now().format("%d/%m/%y %H:%M:%S").to_string();
+}
+
+pub fn get_screen_width() -> u16 {
+    return terminal::size().unwrap().0;
 }
 
 pub fn entity_line(full_time: bool, model: &String, entity: &String) -> String {

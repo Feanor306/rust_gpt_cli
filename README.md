@@ -40,6 +40,7 @@ RUST_GPT_CLI_THEME="base16-eighties.dark"
 # Tested models
 * text-davinci-003
 * text-davinci-002
+* code-davinci-002
 
-# Known issues
-* handle rows that are wider than terminal?
+# TODO ChatGPT model 
+* Implement support for *gpt-3.5-turbo* model 
