@@ -47,7 +47,7 @@ pub fn get_max_tokens() -> i32 {
 pub fn get_theme() -> String {
     let default_theme: String = "base16-eighties.dark".into();
 
-    let mts = match env::var("RUST_GPT_CLI_THEME") {
+    let theme = match env::var("RUST_GPT_CLI_THEME") {
         Ok(val) => val,
         Err(_) => default_theme.clone(),
     };
@@ -62,8 +62,8 @@ pub fn get_theme() -> String {
         "Solarized (light)",
     ];
 
-    if available_themes.contains(&mts.as_str()) {
-        return mts
+    if available_themes.contains(&theme.as_str()) {
+        return theme
     } else {
         return default_theme.clone()
     }
