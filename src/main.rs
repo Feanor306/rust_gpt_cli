@@ -1,5 +1,5 @@
 use crossterm::style::Stylize;
-use rust_gpt_cli::{env, req, log, helpers, menu, structs::{RequestParams, GPTModel}};
+use rust_gpt_cli::{env, req, log, helpers, menu, structs::{RequestParams, GPTModel, ChatMessages}};
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 
@@ -12,6 +12,7 @@ async fn main() {
     }
     
     let mt = env::get_max_tokens();
+    let sm = env::get_system_message();
     let client = reqwest::Client::new();
     let mut rl = Editor::<()>::new().unwrap();
 
@@ -21,7 +22,7 @@ async fn main() {
 
     menu::main_menu();
 
-    let mut rp: RequestParams = RequestParams::new(mt);
+    let mut rp: RequestParams = RequestParams::new(&sm, mt);
     let mut vm: Vec<GPTModel> = vec!();
     
     loop {
@@ -34,8 +35,9 @@ async fn main() {
                 if l.len() == 0 {
                     continue;
                 }
+                // Keyword commands
                 if l == "exit" {
-                    println!("Program exited");
+                    println!("[rust_gpt_cli] exited");
                     break;
                 }
                 if l == "help" {
@@ -53,14 +55,23 @@ async fn main() {
                         0 => continue,
                         _ => {
                             rp.model = new_model;
+                            rp.messages = ChatMessages::new(&sm);
                             println!("{} changed to {}", "Model".magenta(), &rp.model.clone().magenta());
                             continue;
                         },
                     }
                 }
+
+                // Handle calls to chat endpoint when a gpt model is selected
+                if helpers::is_chat_model(&rp.model) {
+                    rp.messages.add_user_msg(&line);
+                    req::query_chat_completions(&client, &mut rp, &api_key).await;
+                    continue;
+                }
                 
+                // Send request to completions
                 rp.prompt = line.clone();
-                req::query_completions(&client, rp.clone(), &api_key).await;
+                req::query_completions(&client, &rp, &api_key).await;
                 rl.add_history_entry(&line);
             },
             Err(ReadlineError::Interrupted) => {

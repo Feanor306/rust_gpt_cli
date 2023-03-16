@@ -13,9 +13,11 @@ cargo build --release
 # export OPENAI_API_KEY="key" # (mandatory)
 # export OPENAI_MAX_TOKENS="1000" # (optional)
 # export RUST_GPT_CLI_THEME="base16-eighties.dark" # (optional)
+# CHATGPT_SYSTEM_MSG is used exclusively by GPT models (optional)
+# export CHATGPT_SYSTEM_MSG="You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible."
 
 # Run with cargo
-# cargo run --release
+cargo run --release
 
 # Run binary
 # ./target/release/rust_gpt_cli

@@ -1094,7 +1094,7 @@ dependencies = [
 
 [[package]]
 name = "rust_gpt_cli"
-version = "1.0.1"
+version = "1.1.0"
 dependencies = [
  "chrono",
  "crossterm",

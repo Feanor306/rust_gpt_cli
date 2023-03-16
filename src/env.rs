@@ -42,6 +42,19 @@ pub fn get_max_tokens() -> i32 {
 }
 
 // Retrieves ENV VAR 
+// CHATGPT_SYSTEM_MSG
+pub fn get_system_message() -> String {
+    let system_msg = match env::var("CHATGPT_SYSTEM_MSG") {
+        Ok(val) => val,
+        Err(e) => {
+            println!("Failed to read environment variable CHATGPT_SYSTEM_MSG: {}", e);
+            return "".into();
+        }
+    };
+    return system_msg;
+}
+
+// Retrieves ENV VAR 
 // RUST_GPT_CLI_THEME
 // Returns Default value otherwise
 pub fn get_theme() -> String {

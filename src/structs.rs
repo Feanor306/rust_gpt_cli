@@ -1,7 +1,11 @@
 use std::io::stdout;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use crossterm::{cursor, ExecutableCommand};
 use crate::{helpers, syntax::SyntaxHighlighter};
+
+const ROLE_SYSTEM: &str = "system";
+const ROLE_USER: &str = "user";
+const ROLE_ASSISTANT: &str = "assistant";
 
 #[derive(Debug)]
 pub struct GPTModel {
@@ -10,21 +14,57 @@ pub struct GPTModel {
     pub owned_by: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Clone)]
 pub struct RequestParams {
+    pub prompt: String,
+    pub model: String,
+    pub stream: bool,
+    pub max_tokens: i32,
+    pub messages: ChatMessages,
+}
+
+#[derive(Debug, Serialize)]
+pub struct RPCompletions {
     pub prompt: String,
     pub model: String,
     pub stream: bool,
     pub max_tokens: i32,
 }
 
+#[derive(Debug, Serialize)]
+pub struct RPChat {
+    pub model: String,
+    pub stream: bool,
+    pub max_tokens: i32,
+    pub messages: Vec<ChatMessage>,
+}
+
 impl RequestParams {
-    pub fn new(mt: i32) -> Self {
+    pub fn new(sm: &String, mt: i32) -> Self {
         Self {
             prompt: "".into(),
             model: "text-davinci-003".into(),
             stream: true,
             max_tokens: mt,
+            messages: ChatMessages::new(sm),
+        }
+    }
+
+    pub fn to_completion(&self) -> RPCompletions {
+        RPCompletions {
+            prompt: self.prompt.clone(),
+            model: self.model.clone(),
+            stream: self.stream,
+            max_tokens: self.max_tokens,
+        }
+    }
+
+    pub fn to_chat(&self) -> RPChat {
+        RPChat {
+            messages: self.messages.messages.clone(),
+            model: self.model.clone(),
+            stream: self.stream,
+            max_tokens: self.max_tokens,
         }
     }
 }
@@ -53,6 +93,8 @@ impl GPTResponse {
     }
     pub fn append_line(&mut self, chunk: String) {
         self.last_line.push_str(&chunk);
+
+        // syntax highlighting when line reaches width of screen
         if self.last_line.len() == (self.max_width as usize) {
             let mut stdout = stdout();
             stdout.execute(cursor::MoveDown(1)).unwrap();
@@ -66,5 +108,54 @@ impl GPTResponse {
             self.syntax.reprint_with_style(&self.last_line);
             self.last_line = "".into();
         }
+    }
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct ChatMessage {
+    pub role: String,
+    pub content: String,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct ChatMessages {
+    pub messages: Vec<ChatMessage>,
+    pub total_tokens: i32,
+}
+
+impl ChatMessages {
+    pub fn new(s: &String) -> Self {
+        let mut m = vec![];
+        if !s.is_empty() {
+            m.push(ChatMessage {
+                role: ROLE_SYSTEM.into(),
+                content: s.into(),
+            });
+        }
+        Self {
+            messages: m,
+            total_tokens: 0,
+        }
+    }
+
+    pub fn get_last_message(&mut self) -> String {
+        match self.messages.last() {
+            Some(c) => return c.content.clone(),
+            None => return "".into(),
+        }
+    }
+
+    pub fn add_user_msg(&mut self, s: &String) {
+        self.messages.push(ChatMessage {
+            role: ROLE_USER.into(),
+            content: s.into(),
+        });
+    }
+
+    pub fn add_assistant_msg(&mut self, s: &String) {
+        self.messages.push(ChatMessage {
+            role: ROLE_ASSISTANT.into(),
+            content: s.into(),
+        });
     }
 }

@@ -14,6 +14,11 @@ pub fn get_screen_width() -> u16 {
     return terminal::size().unwrap().0;
 }
 
+pub fn is_chat_model(model: &String) -> bool {
+    // https://platform.openai.com/docs/models/model-endpoint-compatibility
+    return model.starts_with("gpt-")
+}
+
 pub fn entity_line(full_time: bool, model: &String, entity: &String) -> String {
     // full_time is used only for logging, where crossterm color formatting should be avoided
     if full_time {
@@ -50,12 +55,13 @@ pub fn entity_line(full_time: bool, model: &String, entity: &String) -> String {
     return format!("{} {} ", res, et);
 }
 
-pub fn sanitize_json(raw_stream_data: &String, model: &String) -> Vec<String> {
+pub fn sanitize_json(raw_stream_data: &String, model: &String, chat: bool) -> Vec<String> {
     let mut sanitized = Vec::new();
     let mut rsd = raw_stream_data.clone();
+
     while rsd.contains("data: ") {
         rsd = rsd.replacen("data: ", "", 1);
-        match parse_first_json(&rsd, model) {
+        match parse_first_json(&rsd, model, chat) {
             Some(obj) => {
                 sanitized.push(obj.to_string());
                 rsd = rsd[obj.len()..].to_string();
@@ -66,8 +72,11 @@ pub fn sanitize_json(raw_stream_data: &String, model: &String) -> Vec<String> {
     return sanitized
 }
 
-fn parse_first_json(input: &str, model: &String) -> Option<String> {
-    let expected_end_of_json: String = "}], \"model\": \"".to_owned() + model + "\"}".into();
+fn parse_first_json(input: &str, model: &String, chat: bool) -> Option<String> {
+    let expected_end_of_json: String = match chat {
+        true => "},\"index\":0,\"finish_reason\":null}]}".into(),
+        false => "}], \"model\": \"".to_owned() + model + "\"}".into(),
+    };
     let end = input.find(&expected_end_of_json)? + expected_end_of_json.len() + 1;
 
     match input[..end].to_string().len() {
@@ -76,9 +85,12 @@ fn parse_first_json(input: &str, model: &String) -> Option<String> {
     }
 }
 
-pub fn extract_msg_from_json(cj: &String) -> String {
+pub fn extract_msg_from_json(cj: &String, chat: bool) -> String {
     if cj == "[DONE]" {
         return "[DONE]".into();
+    }
+    if chat && !cj.contains("\"content\":") {
+        return "".into();
     }
     let json: serde_json::Value = match serde_json::from_str(&cj) {
         Ok(val) => val,
@@ -94,7 +106,14 @@ pub fn extract_msg_from_json(cj: &String) -> String {
         },
     };
 
-    return json["choices"][0]["text"].as_str().unwrap().into();
+    match chat {
+        true => {
+            return json["choices"][0]["delta"]["content"].as_str().unwrap().into();
+        },
+        false => {
+            return json["choices"][0]["text"].as_str().unwrap().into();
+        },
+    }
 }
 
 pub fn get_models_from_json(mj: &String) -> Vec<GPTModel> {
