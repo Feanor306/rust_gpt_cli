@@ -1,11 +1,10 @@
-use std::io::stdout;
 use serde::Serialize;
-use crossterm::{cursor, ExecutableCommand};
 use crate::{helpers, syntax::SyntaxHighlighter};
 
 const ROLE_SYSTEM: &str = "system";
 const ROLE_USER: &str = "user";
 const ROLE_ASSISTANT: &str = "assistant";
+const RIGHT_GUTTER: usize = 1;
 
 #[derive(Debug)]
 pub struct GPTModel {
@@ -95,10 +94,8 @@ impl GPTResponse {
         self.last_line.push_str(&chunk);
 
         // syntax highlighting when line reaches width of screen
-        if self.last_line.len() == (self.max_width as usize) {
-            let mut stdout = stdout();
-            stdout.execute(cursor::MoveDown(1)).unwrap();
-            stdout.execute(cursor::MoveToColumn(0)).unwrap();
+        if self.last_line.len() + RIGHT_GUTTER == (self.max_width as usize) {
+            println!("");
             self.reset_line();
         }
     }
