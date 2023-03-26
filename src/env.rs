@@ -1,6 +1,14 @@
 use std::env;
 use std::cmp::min;
 
+pub const DEFAULT_MODEL: &str = "gpt-3.5-turbo";
+const DEFAULT_THEME: &str = "base16-eighties.dark";
+
+// Default 1000 ~> 750 words
+const DEFAULT_MAX_TOKENS: i32 = 1000;
+// Max_max 32000 ~> 24000 words
+const MAX_MAX_TOKENS: i32 = 32000;
+
 // Retrieves ENV VAR 
 // OPENAI_API_KEY
 pub fn get_api_key() -> String {
@@ -19,11 +27,6 @@ pub fn get_api_key() -> String {
 // Returns Default value otherwise
 // 1 token is approximately 4 characters or 0.75 words
 pub fn get_max_tokens() -> i32 {
-    // Default 1000 ~> 750 words
-    let default_max_tokens: i32 = 1000;
-    // Max_max 4000 -> 3750 words
-    let max_max_tokens: i32 = 4000; 
-
     let mts = match env::var("OPENAI_MAX_TOKENS") {
         Ok(val) => val,
         Err(e) => {
@@ -35,10 +38,30 @@ pub fn get_max_tokens() -> i32 {
     let mt: i32 = mts.parse().unwrap();
 
     if mt > 0 {
-        return min(mt, max_max_tokens);
+        return min(mt, MAX_MAX_TOKENS);
     } else {
-        return default_max_tokens;
+        return DEFAULT_MAX_TOKENS;
     }
+}
+
+// Retrieves ENV VAR 
+// OPENAI_MODEL
+// returns default value otherwise 
+// currently default gpt-3.5-turbo
+pub fn get_default_model() -> String {
+    let model = match env::var("OPENAI_MODEL") {
+        Ok(val) => val,
+        Err(e) => {
+            println!("Failed to read environment variable OPENAI_MODEL: {}", e);
+            return "".into();
+        }
+    };
+
+    if model.len() == 0 {
+        return DEFAULT_MODEL.into();
+    }
+
+    return model;
 }
 
 // Retrieves ENV VAR 
@@ -58,11 +81,9 @@ pub fn get_system_message() -> String {
 // RUST_GPT_CLI_THEME
 // Returns Default value otherwise
 pub fn get_theme() -> String {
-    let default_theme: String = "base16-eighties.dark".into();
-
     let theme = match env::var("RUST_GPT_CLI_THEME") {
         Ok(val) => val,
-        Err(_) => default_theme.clone(),
+        Err(_) => DEFAULT_THEME.into(),
     };
 
     let available_themes = vec![
@@ -78,6 +99,6 @@ pub fn get_theme() -> String {
     if available_themes.contains(&theme.as_str()) {
         return theme
     } else {
-        return default_theme.clone()
+        return DEFAULT_THEME.into()
     }
 }
