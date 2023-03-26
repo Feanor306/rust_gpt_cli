@@ -1,5 +1,5 @@
 use serde::Serialize;
-use crate::{helpers, syntax::SyntaxHighlighter};
+use crate::{env, helpers, syntax::SyntaxHighlighter};
 
 const ROLE_SYSTEM: &str = "system";
 const ROLE_USER: &str = "user";
@@ -42,7 +42,7 @@ impl RequestParams {
     pub fn new(sm: &String, mt: i32) -> Self {
         Self {
             prompt: "".into(),
-            model: "text-davinci-003".into(),
+            model: env::DEFAULT_MODEL.into(),
             stream: true,
             max_tokens: mt,
             messages: ChatMessages::new(sm),

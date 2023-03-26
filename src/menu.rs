@@ -1,7 +1,10 @@
 use crate::structs::GPTModel;
 use crossterm::style::Stylize;
+use crate::env;
 
 pub fn main_menu() {
+    let dm: String = env::DEFAULT_MODEL.into();
+    
     // clear terminal screen on startup and move cursor to top
     print!("\x1B[2J\x1B[1;1H");
 
@@ -11,7 +14,7 @@ pub fn main_menu() {
     println!("\n###############################");
     println!("\n###   {}   ###", "Available Commands:".blue());
     println!("\n {} : {}  ", "exit".red(), "terminate program");
-    println!("\n {} : {} (default: {})  ", "model".green(), "list OpenAI models", "text-davinci-003".magenta());
+    println!("\n {} : {} (default: {})  ", "model".green(), "list OpenAI models", dm.magenta());
     println!("\n {} <{}> : {}  ", "model".green(), "id".magenta(), "change model");
     println!("\n {} : {}  ", "help".blue(), "list commands");
     println!("\n");

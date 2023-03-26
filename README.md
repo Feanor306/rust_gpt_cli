@@ -4,7 +4,7 @@
 * Streaming GPT responses asynchronously in the terminal
 * Syntax highlighting for code (determined by programming language if present in prompt)
 * Syntax highlighting themes can be set via **RUST_GPT_CLI_THEME** env var
-* Change model by querying **/models** API and choosing one of the available models (default text-davinci-003)
+* Change model by querying **/models** API and choosing one of the available models (default **gpt-3.5-turbo**)
 * ChatGPT model support by calling **/chat/completions**. The main difference to other models is that each request contains the whole chat history of the session (with the same model), cleared on terminating the program or changing the model. This can have implications for token restrictions as the token count of each consecutive request increases cumulatively.
 
 # Installation
@@ -32,6 +32,10 @@ OPENAI_API_KEY="key"
 # Includes Prompt Length + Response Length
 # 1 token is approximately 4 characters or 0.75 words
 OPENAI_MAX_TOKENS="1000"
+
+# Default model to use
+# Can be defined as ENV var to avoid switching models
+OPENAI_MODEL="gpt-3.5-turbo"
 
 # System message at the beginning of a chat
 # optional and used only by ChatGPT models like gpt-3.5-turbo and gpt-4
